@@ -6,8 +6,72 @@
     <title>GEO Practice Webpage</title>
 </head>
 <style>
-    * {
-        background-color: aqua;
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #FFFAF0;
+        color: #FF6347;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+    }
+
+    h1, h2 {
+        color: #FF4500;
+    }
+
+    p {
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+    button {
+        background-color: #FF7F50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 5px;
+        margin: 10px;
+    }
+
+    button:hover {
+        background-color: #FF6347;
+    }
+
+    #output, #input, #result {
+        margin: 20px auto;
+        padding: 20px;
+        border: 2px solid #FF7F50;
+        border-radius: 10px;
+        max-width: 600px;
+        background-color: #FFF5EE;
+    }
+
+    label {
+        font-size: 14px;
+        color: #FF6347;
+    }
+
+    input[type="checkbox"] {
+        margin-right: 10px;
+    }
+
+    footer {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #FF6347;
+        color: white;
+        font-size: 14px;
+    }
+
+    #outline {
+        background-color: #FFF5EE;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px auto;
+        max-width: 600px;
+        border: 2px solid #FF7F50;
     }
 </style>
 <script>
@@ -31,428 +95,77 @@
     }
 
     function checkSets() {
-        types_of_sets = ["Prime", "even", "odd", "greater than 4", "less than 80", "perfect square", "multiple of ten", "divisible by 5", "greater than 50"]
-        list_of_primes_under_100 = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]
-        list_of_all_even_numbers_under_100 = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100]
-        list_of_all_odd_numbers_under_100 = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63, 65, 67, 69, 71, 73, 75, 77, 79, 81, 83, 85, 87, 89, 91, 93, 95, 97, 99]
-        list_of_all_perfect_squares = [0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
-        list_of_all_multiples_of_ten = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-        list_of_all_divisible_by_5 = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100]
-        var dice_val = parseInt(document.getElementById("diceValue").textContent);
-        var set_one_criteria = document.getElementById("setOneCriteria").textContent;
-        var set_two_criteria = document.getElementById("setTwoCriteria").textContent;
+        const types_of_sets = [
+            "Prime", "even", "odd", "greater than 4", "less than 80",
+            "perfect square", "multiple of ten", "divisible by 5", "greater than 50"
+        ];
 
-        var set_one = document.getElementById("setOne").checked;
-        var set_two = document.getElementById("setTwo").checked;
-        var U = document.getElementById("U").checked;
-        var intersection = document.getElementById("intersection").checked;
-        var union = document.getElementById("union").checked;
-        // var complement = document.getElementById("complement").checked;
-        // var difference = document.getElementById("difference").checked;
+        const conditions = {
+            "Prime": num => [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97].includes(num),
+            "even": num => num % 2 === 0,
+            "odd": num => num % 2 !== 0,
+            "greater than 4": num => num > 4,
+            "less than 80": num => num < 80,
+            "perfect square": num => [0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100].includes(num),
+            "multiple of ten": num => num % 10 === 0,
+            "divisible by 5": num => num % 5 === 0,
+            "greater than 50": num => num > 50
+        };
 
-        var numcorrect = 0;
+        const dice_val = parseInt(document.getElementById("diceValue").textContent);
+        const set_one_criteria = document.getElementById("setOneCriteria").textContent;
+        const set_two_criteria = document.getElementById("setTwoCriteria").textContent;
 
-        if (U === true) {
+        const set_one = document.getElementById("setOne").checked;
+        const set_two = document.getElementById("setTwo").checked;
+        const U = document.getElementById("U").checked;
+        const intersection = document.getElementById("intersection").checked;
+        const union = document.getElementById("union").checked;
+
+        let numcorrect = 0;
+
+        function logLine() {
+            console.log("Line number:", new Error().stack.split("\n")[2].trim());
+        }
+
+        function checkCriterion(criteria, isChecked) { //checks if its in 1 or 2
+            const conditionFunc = conditions[criteria];
+            const result = conditionFunc ? conditionFunc(dice_val) : false;
+            if ((isChecked && result) || (!isChecked && !result)) {
+                numcorrect += 1;
+                logLine();
+            }
+        }
+
+        checkCriterion(set_one_criteria, set_one);
+        checkCriterion(set_two_criteria, set_two);
+
+        if (U) { //makes sure its in u
             numcorrect += 1;
-            console.log("Line number:", new Error().stack.split("\n")[1].trim());
+            logLine();
         }
 
-        if (set_one === true) {
-            if (set_one_criteria === types_of_sets[0]) {
-                if (list_of_primes_under_100.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[1]) {
-                if (list_of_all_even_numbers_under_100.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[2]) {
-                if (list_of_all_odd_numbers_under_100.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[3]) {
-                if (dice_val > 4) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[4]) {
-                if (dice_val < 80) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[5]) {
-                if (list_of_all_perfect_squares.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[6]) {
-                if(list_of_all_multiples_of_ten.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[7]) {
-                if(list_of_all_divisible_by_5.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[8]) {
-                if(dice_val>50) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
+        const isInSetOne = conditions[set_one_criteria](dice_val); // Check if dice_val satisfies Set One criteria
+        const isInSetTwo = conditions[set_two_criteria](dice_val); // Check if dice_val satisfies Set Two criteria
+
+        if (intersection && (isInSetOne && isInSetTwo)) { //checks if its in the intersection of 1 and 2
+            numcorrect += 1;
+            logLine();
+        } else if (!intersection && !(isInSetOne && isInSetTwo)) {
+            numcorrect += 1;
+            logLine();
         }
 
-        if (set_one === false) {
-            if (set_one_criteria === types_of_sets[0]) {
-                if (list_of_primes_under_100.includes(dice_val)) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[1]) {
-                if (list_of_all_even_numbers_under_100.includes(dice_val)) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[2]) {
-                if (list_of_all_odd_numbers_under_100.includes(dice_val)) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[3]) {
-                if (dice_val > 4) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[4]) {
-                if (dice_val < 80) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[5]) {
-                if (list_of_all_perfect_squares.includes(dice_val)) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[6]) {
-                if(list_of_all_multiples_of_ten.includes(dice_val)) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[7]) {
-                if(list_of_all_divisible_by_5.includes(dice_val)) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[8]) {
-                if(dice_val>50) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
+        if (union && (isInSetOne || isInSetTwo)) { //checks if its in the union of 1 and 2
+            numcorrect += 1;
+            logLine();
+        } else if (!union && !(isInSetOne || isInSetTwo)) {
+            numcorrect += 1;
+            logLine();
         }
 
-        if (set_two === true) {
-            if (set_two_criteria === types_of_sets[0]) {
-                if (list_of_primes_under_100.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[1]) {
-                if (list_of_all_even_numbers_under_100.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[2]) {
-                if (list_of_all_odd_numbers_under_100.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[3]) {
-                if (dice_val > 4) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[4]) {
-                if (dice_val < 80) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[5]) {
-                if (list_of_all_perfect_squares.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[6]) {
-                if(list_of_all_multiples_of_ten.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[7]) {
-                if(list_of_all_divisible_by_5.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[8]) {
-                if(dice_val>50) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-        }
-
-        if (set_two === false) {
-            if (set_two_criteria === types_of_sets[0]) {
-                if (list_of_primes_under_100.includes(dice_val)) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[1]) {
-                if (list_of_all_even_numbers_under_100.includes(dice_val)) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[2]) {
-                if (list_of_all_odd_numbers_under_100.includes(dice_val)) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[3]) {
-                if (dice_val > 4) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[4]) {
-                if (dice_val < 80) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[5]) {
-                if (list_of_all_perfect_squares.includes(dice_val)) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[6]) {
-                if(list_of_all_multiples_of_ten.includes(dice_val)) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[7]) {
-                if(list_of_all_divisible_by_5.includes(dice_val)) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_two_criteria === types_of_sets[8]) {
-                if(dice_val>50) {
-                    console.log("i had to put smth here");
-                } else{
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-        }
-
-
-        if (intersection === true) {
-            if (((set_one === true)&&(set_two === true)&&(U===false)&&(numcorrect = 2))||(((set_one === true)&&(set_two === true)&&(U===true)&&(numcorrect = 3)))) {
-                numcorrect += 1;
-                console.log("Line number:", new Error().stack.split("\n")[1].trim());
-            }
-        }
-
-        if (intersection === false) {
-            if (((set_one === true)&&(set_two === true)&&(U===false)&&(numcorrect = 2))||(((set_one === true)&&(set_two === true)&&(U===true)&&(numcorrect = 3)))) {
-            }else{
-                numcorrect += 1;
-                console.log("Line number:", new Error().stack.split("\n")[1].trim());
-            }
-        }
-
-        //union
-        
-        if (union === true) {
-            var numcorrect_start = numcorrect;
-            if (set_one_criteria === types_of_sets[0]) {
-                if (list_of_primes_under_100.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[1]) {
-                if (list_of_all_even_numbers_under_100.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[2]) {
-                if (list_of_all_odd_numbers_under_100.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[3]) {
-                if (dice_val > 4) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[4]) {
-                if (dice_val < 80) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[5]) {
-                if (list_of_all_perfect_squares.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[6]) {
-                if(list_of_all_multiples_of_ten.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[7]) {
-                if(list_of_all_divisible_by_5.includes(dice_val)) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-            if (set_one_criteria === types_of_sets[8]) {
-                if(dice_val>50) {
-                    numcorrect += 1;
-                    console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                }
-            }
-
-            if (numcorrect_start < numcorrect) {
-                if (set_two_criteria === types_of_sets[0]) {
-                    if (list_of_primes_under_100.includes(dice_val)) {
-                        numcorrect += 1;
-                        console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                    }
-                }
-                if (set_two_criteria === types_of_sets[1]) {
-                    if (list_of_all_even_numbers_under_100.includes(dice_val)) {
-                        numcorrect += 1;
-                        console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                    }
-                }
-                if (set_two_criteria === types_of_sets[2]) {
-                    if (list_of_all_odd_numbers_under_100.includes(dice_val)) {
-                        numcorrect += 1;
-                        console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                    }
-                }
-                if (set_two_criteria === types_of_sets[3]) {
-                    if (dice_val > 4) {
-                        numcorrect += 1;
-                        console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                    }
-                }
-                if (set_two_criteria === types_of_sets[4]) {
-                    if (dice_val < 80) {
-                        numcorrect += 1;
-                        console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                    }
-                }
-                if (set_two_criteria === types_of_sets[5]) {
-                    if (list_of_all_perfect_squares.includes(dice_val)) {
-                        numcorrect += 1;
-                        console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                    }
-                }
-                if (set_two_criteria === types_of_sets[6]) {
-                    if(list_of_all_multiples_of_ten.includes(dice_val)) {
-                        numcorrect += 1;
-                        console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                    }
-                }
-                if (set_two_criteria === types_of_sets[7]) {
-                    if(list_of_all_divisible_by_5.includes(dice_val)) {
-                        numcorrect += 1;
-                        console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                    }
-                }
-                if (set_two_criteria === types_of_sets[8]) {
-                    if(dice_val>50) {
-                        numcorrect += 1;
-                        console.log("Line number:", new Error().stack.split("\n")[1].trim());
-                    }
-                }
-            }
-        }
+        // You can return or log numcorrect here if needed
+        console.log("Total correct conditions:", numcorrect);
 
         document.getElementById("num").textContent = numcorrect;
     }
@@ -460,6 +173,8 @@
 <body>
     <h1>Welcome to GEO 2025 Practice Webpage</h1>
     <h2>This site contains the extra activity that you can complete after finishing your practices to further your learning.</h2>
+    <div id="outline"><p>Instructions: Click the button below to randomize the criteria for sets one, two, and your random number, and based on what you learned in today's lesson, tell the computer which sets it fits into, hit submit, then it will automatically grade your work with my code, and give you feedback.</p></div>
+    <p>Note: "U" Stands for the universal set. In set theory, a universal set is a set which contains all objects, including itself. (<cite>Wikipedia, 2025</cite>)</p>
     <button onclick="roll()">Randomize practice</button>
     <!-- show dice value
     show set_one_criteria
@@ -472,7 +187,7 @@
         <p>Random number: <span id="diceValue"></span></p>
         <p>Set One Criteria: <span id="setOneCriteria"></span></p>
         <p>Set Two Criteria: <span id="setTwoCriteria"></span></p>
-        <img src="https://raw.githubusercontent.com/ahujaesh/geopracticewebpage/main/venn_diagram.png" alt="Venn Diagram" height="20%" width="20%">
+        <img src="./venn_diagram.png" alt="Venn Diagram" height="80%" width="80%">
     </div>
 
     <div id="input">
@@ -486,18 +201,32 @@
         <label for="intersection">Does it fit into the intersection of Set One and Set Two?</label><br>
         <input type="checkbox" id="union" name="union" value="union">
         <label for="union">Does it fit into the union of Set One and Set Two?</label><br>
-        <!-- <input type="checkbox" id="complement" name="complement" value="complement"> -->
-        <!-- <label for="complement">Does it fit into the complement of Set One and Set Two?</label><br> -->
-        <!-- <input type="checkbox" id="difference" name="difference" value="difference"> -->
-        <!-- <label for="difference">Does it fit into the difference of Set One and Set Two?</label><br> -->
         <button onclick="checkSets()">Submit</button>
     </div>
 
     <div id="result">
         <p>NUMBER CORRECT (out of 5) <span id="num"></span></p>
     </div>
+
+    <div id="feedback">
+        <p>Generic Feedback (Not tied to your answers, just here to help):</p>
+        <button onclick="toggleFeedback()">Show Feedback</button>
+        <ul id="feedbackList" style="display: none; text-align: left;">
+            <li>Make sure to check the criteria for Set One and Set Two carefully.</li>
+            <li>Remember that the intersection is where both sets overlap.</li>
+            <li>The union includes all elements from both sets.</li>
+            <li>Check if the number is in the universal set.</li>
+            <li>Use the Venn diagram as a visual aid to understand the sets.</li>
+            <li>Good luck!</li>
+        </ul>
+        <script>
+            function toggleFeedback() {
+                const feedbackList = document.getElementById("feedbackList");
+                feedbackList.style.display = feedbackList.style.display === "none" ? "block" : "none";
+            }
+        </script>
 </body>
 <footer>
-    Made by Eshaan
+    Made by Eshaan for the MCC GEO 2025 MP4 project.<br>Have Fun!
 </footer>
 </html>
