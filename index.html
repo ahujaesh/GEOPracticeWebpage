@@ -75,7 +75,9 @@
     }
 </style>
 <script>
+    let hasBeenRolled = false; // Flag to check if the roll function has been called
     function roll() {
+        hasBeenRolled = true; // Set the flag to true when roll is called
         types_of_sets = ["Prime", "even", "odd", "greater than 4", "less than 80", "perfect square", "multiple of ten", "divisible by 5", "greater than 50"]
         dice_val = Math.floor(Math.random() * 100) + 1;
         set_one_criteria = types_of_sets[Math.floor(Math.random() * types_of_sets.length)];
@@ -95,6 +97,10 @@
     }
 
     function checkSets() {
+        if (!hasBeenRolled) {
+            alert("Please roll the dice before attempting to check the sets.");
+            return; // Exit the function if roll hasn't been called
+        }
         const types_of_sets = [
             "Prime", "even", "odd", "greater than 4", "less than 80",
             "perfect square", "multiple of ten", "divisible by 5", "greater than 50"
@@ -164,7 +170,6 @@
             logLine();
         }
 
-        // You can return or log numcorrect here if needed
         console.log("Total correct conditions:", numcorrect);
 
         document.getElementById("num").textContent = numcorrect;
@@ -188,6 +193,7 @@
         <p>Set One Criteria: <span id="setOneCriteria"></span></p>
         <p>Set Two Criteria: <span id="setTwoCriteria"></span></p>
         <img src="./venn_diagram.png" alt="Venn Diagram" height="80%" width="80%">
+        <cite><br>(Image from "BrainPop", 2025)</cite>
     </div>
 
     <div id="input">
